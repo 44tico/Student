@@ -89,6 +89,7 @@ fun Home() {
                     if (name.isNotBlank()) {
                         if (!names.contains(name)) {
                             names += name
+                            name = ""
                         } else {
                             Toast.makeText(
                                 context,
@@ -140,8 +141,8 @@ fun Home() {
 
                 Button(
                     onClick = {
-                        if (!presents.contains(name)) {
-                            presents += name
+                        if (!presents.contains(namesItem)) {
+                            presents += namesItem
                         } else {
                             Toast.makeText(
                                 context,
