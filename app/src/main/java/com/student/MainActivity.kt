@@ -5,17 +5,42 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import com.student.ui.presentation.home.HomeDestination
+import com.student.ui.presentation.home.homeScreen
+import com.student.ui.presentation.login.LoginDestination
+import com.student.ui.presentation.login.loginScreen
+import com.student.ui.presentation.signup.SignupDestination
+import com.student.ui.presentation.signup.signupScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                Navigation(modifier = Modifier.padding(innerPadding))
+
+            val navController = rememberNavController()
+
+            NavHost(
+                navController = navController,
+                startDestination = LoginDestination,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                loginScreen(
+                    onNavigateToHome = { navController.navigate(HomeDestination) },
+                    onNavigateToSignup = { navController.navigate(SignupDestination) }
+                )
+
+                signupScreen(
+                    onNavigateToHome = { navController.navigate(HomeDestination) },
+                    onNavigateToLogin = { navController.navigate(LoginDestination) }
+                )
+
+                homeScreen()
             }
         }
     }
