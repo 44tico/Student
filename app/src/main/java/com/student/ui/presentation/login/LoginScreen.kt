@@ -1,6 +1,6 @@
-package com.student.pages
+package com.student.ui.presentation.login
 
-import androidx.compose.foundation.Image
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,12 +15,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,7 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -36,11 +36,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.student.R
+import com.student.ui.presentation.login.components.GoogleSignInButton
+import com.student.ui.presentation.login.state.LoginState
+
 
 @Composable
-fun LoginPage(modifier: Modifier = Modifier, navController: NavController) {
+fun LoginScreen(
+    uiState: LoginState,
+    onNavigateToHome: () -> Unit,
+    onNavigateToSignup: () -> Unit,
+    onEvent: (LoginEvent) -> Unit,
+) {
+
+    val context = LocalContext.current
+
+    LaunchedEffect(
+        uiState.isSignInSuccessful,
+        uiState.errorMessage
+    ) {
+        if (uiState.isSignInSuccessful){
+            onNavigateToHome()
+        }
+
+        uiState.errorMessage?.let { errorMessage ->
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     var email by remember {
         mutableStateOf("")
     }
@@ -111,9 +134,7 @@ fun LoginPage(modifier: Modifier = Modifier, navController: NavController) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = {
-                navController.navigate("home")
-            },
+            onClick = onNavigateToHome,
             modifier = Modifier
                 .height(39.dp)
                 .width(260.dp),
@@ -145,25 +166,17 @@ fun LoginPage(modifier: Modifier = Modifier, navController: NavController) {
                 )
                 .padding(3.dp)
         ) {
-            IconButton(
-                onClick = {
-
-                }
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = "Google Logo",
-                    modifier = Modifier.width(24.dp)
-                )
-            }
-
+            GoogleSignInButton(
+                isLoading = uiState.isLoading,
+                onGoogleSignInClick = { onEvent.invoke(LoginEvent.GoogleSignInClick) }
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        TextButton(onClick = {
-            navController.navigate("signup")
-        }) {
+        TextButton(
+            onClick = onNavigateToSignup
+        ) {
             Text(
                 buildAnnotatedString {
                     append("Não tem uma conta? ")
